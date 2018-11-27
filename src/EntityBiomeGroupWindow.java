@@ -1,13 +1,11 @@
 import darrylbu.renderer.VerticalTableHeaderCellRenderer;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -31,6 +29,8 @@ public class EntityBiomeGroupWindow extends JFrame {
     private ArrayList<Biome> biomes;
     private ArrayList<EntityBiomeGroup> entityBiomeGroups;
 
+    private int lastHoverRow = -1, lastHoverColumn = -1;
+
 
     public EntityBiomeGroupWindow() throws HeadlessException {
         super("Custom Mob Spawner Config Editor");
@@ -52,13 +52,17 @@ public class EntityBiomeGroupWindow extends JFrame {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) c.setBackground(row % 2 == 0 ? getBackground() : new Color(229, 229, 229));
+                c.setBackground((lastHoverRow == row && lastHoverColumn != 0 && column == 0) ? new Color(209, 209, 209) : new Color(255, 255, 255));
                 return c;
             }
         };
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getTableHeader().setReorderingAllowed(false);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        table.setColumnSelectionAllowed(true);
+        table.setRowSelectionAllowed(true);
 
         tableScroll = new JScrollPane(table);
         //Prepare table end
@@ -89,6 +93,30 @@ public class EntityBiomeGroupWindow extends JFrame {
         });
 
         table.addMouseListener(new JTableMouseListener());
+
+        table.addMouseMotionListener(new MouseMotionAdapter() {
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+                Point p = e.getPoint();
+                int row = table.rowAtPoint(p);
+                int col = table.columnAtPoint(p);
+
+
+                int oldCol = lastHoverColumn;
+
+                lastHoverColumn = col;
+
+                if (row != lastHoverRow) {
+                    int oldRow = lastHoverRow;
+                    lastHoverRow = row;
+
+                    ((AbstractTableModel) table.getModel()).fireTableCellUpdated(row, 0);
+                    ((AbstractTableModel) table.getModel()).fireTableCellUpdated(oldRow, 0);
+                }
+            }
+        });
         //Add listener end
 
         //Set buttons start
