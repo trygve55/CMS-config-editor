@@ -138,6 +138,10 @@ public class EntityBiomeGroupWindow extends JFrame {
         });
         //Add listener end
 
+        //Fixed Panel Start
+        JTable fixedTable = new JTable(10, 1);
+        //Fixed Panel End
+
         //Set buttons start
         addBiomeButton.setEnabled(false);
         saveConfigButton.setEnabled(false);
@@ -151,9 +155,13 @@ public class EntityBiomeGroupWindow extends JFrame {
         topRowPanel.add(addBiomeButton);
         topRowPanel.add(addEntityBiomeGroupButton);
 
+        Panel tablePanel = new Panel(new BorderLayout());
+        //tablePanel.add(fixedTable, BorderLayout.WEST);
+        tablePanel.add(tableScroll, BorderLayout.CENTER);
+
         setLayout(new BorderLayout());
         add(topRowPanel, BorderLayout.PAGE_START);
-        add(tableScroll, BorderLayout.CENTER);
+        add(tablePanel, BorderLayout.CENTER);
         add(tipLabel, BorderLayout.PAGE_END);
         //Building page end
 
