@@ -4,9 +4,8 @@
 package darrylbu.renderer;
 
 import darrylbu.plaf.vertical.VerticalLabelUI;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+
+import java.awt.*;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.RowSorter.SortKey;
@@ -36,6 +35,12 @@ public class VerticalTableHeaderCellRenderer
     setVerticalAlignment(CENTER);
     setVerticalTextPosition(TOP);
     setUI(new VerticalLabelUI());
+  }
+
+  public VerticalTableHeaderCellRenderer(Color color) {
+    this();
+    setBackground(color);
+    setOpaque(true);
   }
 
   /**

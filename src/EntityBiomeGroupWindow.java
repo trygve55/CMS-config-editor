@@ -21,6 +21,7 @@ public class EntityBiomeGroupWindow extends JFrame {
     private JLabel tipLabel = new JLabel("Click on a checkbox to change the spawn of the creature in that biome.");
 
     private TableCellRenderer headerRenderer = new VerticalTableHeaderCellRenderer();
+    private TableCellRenderer headerRendererHighlight = new VerticalTableHeaderCellRenderer(Color.cyan);
 
     private Object[][] data = new Object[][]{};
     private String[] columns = new String[]{};
@@ -52,7 +53,7 @@ public class EntityBiomeGroupWindow extends JFrame {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
-                c.setBackground((lastHoverRow == row && lastHoverColumn != 0 && column == 0) ? new Color(209, 209, 209) : new Color(255, 255, 255));
+                c.setBackground((lastHoverRow == row && lastHoverColumn != 0 && column == 0) ? Color.cyan : new Color(255, 255, 255));
                 return c;
             }
         };
@@ -103,17 +104,35 @@ public class EntityBiomeGroupWindow extends JFrame {
                 int row = table.rowAtPoint(p);
                 int col = table.columnAtPoint(p);
 
-
-                int oldCol = lastHoverColumn;
-
-                lastHoverColumn = col;
-
                 if (row != lastHoverRow) {
                     int oldRow = lastHoverRow;
                     lastHoverRow = row;
 
                     ((AbstractTableModel) table.getModel()).fireTableCellUpdated(row, 0);
                     ((AbstractTableModel) table.getModel()).fireTableCellUpdated(oldRow, 0);
+
+
+
+                    //Ugly hack start
+                    table.getColumnModel().getColumn(0).setMinWidth(250);
+                    for (int i = 1; i < table.getColumnModel().getColumnCount();i++) {
+                        table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+                        table.getColumnModel().getColumn(i).setMaxWidth(14);
+                    }
+                    //Ugly hack end
+                }
+
+                if (col != lastHoverColumn) {
+                    int oldCol = lastHoverColumn;
+                    lastHoverColumn = col;
+
+                    if (col != 0)
+                        table.getColumnModel().getColumn(col).setHeaderRenderer(headerRendererHighlight);
+
+                    if (oldCol != -1 && oldCol != 0)
+                        table.getColumnModel().getColumn(oldCol).setHeaderRenderer(headerRenderer);
+
+                    table.getTableHeader().repaint();
                 }
             }
         });
@@ -206,17 +225,15 @@ public class EntityBiomeGroupWindow extends JFrame {
             }
         }
 
-        if (table != null) {
-            DefaultTableModel dm = (DefaultTableModel) table.getModel();
-            dm.setDataVector(data, columns);
-            // notifies the JTable that the model has changed
+        DefaultTableModel dm = (DefaultTableModel) table.getModel();
+        dm.setDataVector(data, columns);
+        // notifies the JTable that the model has changed
 
-            table.getColumnModel().getColumn(0).setMinWidth(250);
+        table.getColumnModel().getColumn(0).setMinWidth(250);
 
-            for (int i = 1; i < table.getColumnModel().getColumnCount();i++) {
-                table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-                table.getColumnModel().getColumn(i).setMaxWidth(14);
-            }
+        for (int i = 1; i < table.getColumnModel().getColumnCount();i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+            table.getColumnModel().getColumn(i).setMaxWidth(14);
         }
 
         addBiomeButton.setEnabled(true);
