@@ -12,8 +12,8 @@ import java.util.ArrayList;
 public class EntityBiomeGroupWindow extends JFrame {
 
     private JScrollPane tableScroll;
-    private JTable table;
-    private DefaultTableModel model;
+    private JTable table, tableFixed;
+    private DefaultTableModel model, modelFixed;
     private JButton loadConfigButton = new JButton("Open file");
     private JButton saveConfigButton = new JButton("Save");
     private JButton addEntityBiomeGroupButton = new JButton("Add new Entity Biome Group");
@@ -93,53 +93,22 @@ public class EntityBiomeGroupWindow extends JFrame {
             }
         });
 
+        //Change values
         table.addMouseListener(new JTableMouseListener());
 
+        //Update highlight
         table.addMouseMotionListener(new MouseMotionAdapter() {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-
-                Point p = e.getPoint();
-                int row = table.rowAtPoint(p);
-                int col = table.columnAtPoint(p);
-
-                if (row != lastHoverRow) {
-                    int oldRow = lastHoverRow;
-                    lastHoverRow = row;
-
-                    ((AbstractTableModel) table.getModel()).fireTableCellUpdated(row, 0);
-                    ((AbstractTableModel) table.getModel()).fireTableCellUpdated(oldRow, 0);
-
-
-
-                    //Ugly hack start
-                    table.getColumnModel().getColumn(0).setMinWidth(250);
-                    for (int i = 1; i < table.getColumnModel().getColumnCount();i++) {
-                        table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-                        table.getColumnModel().getColumn(i).setMaxWidth(14);
-                    }
-                    //Ugly hack end
-                }
-
-                if (col != lastHoverColumn) {
-                    int oldCol = lastHoverColumn;
-                    lastHoverColumn = col;
-
-                    if (col != 0)
-                        table.getColumnModel().getColumn(col).setHeaderRenderer(headerRendererHighlight);
-
-                    if (oldCol != -1 && oldCol != 0)
-                        table.getColumnModel().getColumn(oldCol).setHeaderRenderer(headerRenderer);
-
-                    table.getTableHeader().repaint();
-                }
+                updateHighlight(e);
             }
         });
         //Add listener end
 
         //Fixed Panel Start
-        JTable fixedTable = new JTable(10, 1);
+        modelFixed = new DefaultTableModel(data, columns);
+        tableFixed = new JTable(modelFixed);
         //Fixed Panel End
 
         //Set buttons start
@@ -156,8 +125,8 @@ public class EntityBiomeGroupWindow extends JFrame {
         topRowPanel.add(addEntityBiomeGroupButton);
 
         Panel tablePanel = new Panel(new BorderLayout());
-        //tablePanel.add(fixedTable, BorderLayout.WEST);
         tablePanel.add(tableScroll, BorderLayout.CENTER);
+        //tablePanel.add(tableFixed, BorderLayout.WEST);
 
         setLayout(new BorderLayout());
         add(topRowPanel, BorderLayout.PAGE_START);
@@ -216,6 +185,43 @@ public class EntityBiomeGroupWindow extends JFrame {
         }
     }
 
+    private void updateHighlight(MouseEvent e) {
+        Point p = e.getPoint();
+        int row = table.rowAtPoint(p);
+        int col = table.columnAtPoint(p);
+
+        if (row != lastHoverRow) {
+            int oldRow = lastHoverRow;
+            lastHoverRow = row;
+
+            ((AbstractTableModel) table.getModel()).fireTableCellUpdated(row, 0);
+            ((AbstractTableModel) table.getModel()).fireTableCellUpdated(oldRow, 0);
+
+
+
+            //Ugly hack start
+            table.getColumnModel().getColumn(0).setMinWidth(250);
+            for (int i = 1; i < table.getColumnModel().getColumnCount();i++) {
+                table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+                table.getColumnModel().getColumn(i).setMaxWidth(14);
+            }
+            //Ugly hack end
+        }
+
+        if (col != lastHoverColumn) {
+            int oldCol = lastHoverColumn;
+            lastHoverColumn = col;
+
+            if (col != 0)
+                table.getColumnModel().getColumn(col).setHeaderRenderer(headerRendererHighlight);
+
+            if (oldCol != -1 && oldCol != 0)
+                table.getColumnModel().getColumn(oldCol).setHeaderRenderer(headerRenderer);
+
+            table.getTableHeader().repaint();
+        }
+    }
+
     private void updateTable() {
         columns = new String[biomes.size() + 1];
         columns[0] = "EntityBiomeGroup";
@@ -235,7 +241,17 @@ public class EntityBiomeGroupWindow extends JFrame {
 
         DefaultTableModel dm = (DefaultTableModel) table.getModel();
         dm.setDataVector(data, columns);
-        // notifies the JTable that the model has changed
+
+        /*
+        Object[][] fixedData = new Object[entityBiomeGroups.size()][1];
+        for (int i = 0;i < entityBiomeGroups.size();i++) {
+            //data[i] = new Object[biomes.size() + 1];
+            fixedData[i][0] = entityBiomeGroups.get(i).getName();
+        }
+
+        DefaultTableModel dm2 = (DefaultTableModel) tableFixed.getModel();
+        dm2.setDataVector(fixedData, new String[]{columns[0]});
+        */
 
         table.getColumnModel().getColumn(0).setMinWidth(250);
 
